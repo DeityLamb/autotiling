@@ -7,3 +7,9 @@ edition = "2021"
 
 [dependencies]
 swayipc = "3.0"
+
+[profile.release]
+codegen-units = 1
+lto = true
+panic = "abort"
+strip = true
