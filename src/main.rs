@@ -11,7 +11,7 @@ fn main() -> Fallible<()> {
     Connection::new()?
         .subscribe([EventType::Window])?
         .filter_map(|event| match event {
-            Ok(Event::Window(e)) if is_valid_event(&e) => e.container.find_focused(|n| n.focused),
+            Ok(Event::Window(e)) if is_valid_event(&e) => Some(e.container),
             _ => None,
         })
         .filter(|node| node.rect.height < node.rect.width || NodeLayout::SplitV != node.layout)
@@ -22,4 +22,3 @@ fn main() -> Fallible<()> {
 
     Ok(())
 }
-
