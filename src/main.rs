@@ -8,17 +8,19 @@ fn is_valid_event(event: &WindowEvent) -> bool {
 fn main() -> Fallible<()> {
     let mut conn = Connection::new()?;
 
-    Connection::new()?
+    let events = Connection::new()?
         .subscribe([EventType::Window])?
         .filter_map(|event| match event {
             Ok(Event::Window(e)) if is_valid_event(&e) => Some(e.container),
             _ => None,
         })
         .filter(|node| node.rect.height < node.rect.width || NodeLayout::SplitV != node.layout)
-        .map(|node| node.rect.height > node.rect.width)
-        .for_each(|horizontal| {
-            let _ = conn.run_command(if horizontal { "splitv" } else { "splith" });
-        });
+        .map(|node| (node.rect.height, node.rect.width))
+        .map(|(height, width)| if height > width { "splitv" } else { "splith" });
+
+    for mode in events {
+        conn.run_command(mode)?;
+    }
 
     Ok(())
 }
